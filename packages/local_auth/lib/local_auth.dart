@@ -54,6 +54,24 @@ class LocalAuthentication {
     AndroidAuthMessages androidAuthStrings: const AndroidAuthMessages(),
     IOSAuthMessages iOSAuthStrings: const IOSAuthMessages(),
   }) {
+    return authenticate(
+      localizedReason: localizedReason,
+      stickyAuth: stickyAuth,
+      useErrorDialogs: useErrorDialogs,
+      androidAuthStrings: androidAuthStrings,
+      iOSAuthStrings: iOSAuthStrings,
+      onlyBiometrics: true
+    );
+  }
+
+  Future<bool> authenticate({
+    @required String localizedReason,
+    bool useErrorDialogs: true,
+    bool stickyAuth: false,
+    AndroidAuthMessages androidAuthStrings: const AndroidAuthMessages(),
+    IOSAuthMessages iOSAuthStrings: const IOSAuthMessages(),
+    bool onlyBiometrics: false
+  }) {
     assert(localizedReason != null);
     final Map<String, Object> args = <String, Object>{
       'localizedReason': localizedReason,
@@ -62,6 +80,8 @@ class LocalAuthentication {
     };
     if (Platform.isIOS) {
       args.addAll(iOSAuthStrings.args);
+      args.addAll({"biometrics": onlyBiometrics});
+      print(args);
     } else if (Platform.isAndroid) {
       args.addAll(androidAuthStrings.args);
     } else {
@@ -71,6 +91,7 @@ class LocalAuthentication {
               'operating systems.',
           details: 'Your operating system is ${Platform.operatingSystem}');
     }
-    return _channel.invokeMethod('authenticateWithBiometrics', args);
+    // change method name in android!!
+    return _channel.invokeMethod('authenticate', args);
   }
 }

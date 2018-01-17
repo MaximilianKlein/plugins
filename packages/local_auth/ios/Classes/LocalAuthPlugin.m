@@ -19,8 +19,8 @@
 }
 
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
-  if ([@"authenticateWithBiometrics" isEqualToString:call.method]) {
-    [self authenticateWithBiometrics:call.arguments withFlutterResult:result];
+  if ([@"authenticate" isEqualToString:call.method]) {
+    [self authenticate:call.arguments withFlutterResult:result];
   } else {
     result(FlutterMethodNotImplemented);
   }
@@ -62,7 +62,7 @@
                                                                                    completion:nil];
 }
 
-- (void)authenticateWithBiometrics:(NSDictionary *)arguments
+- (void)authenticate:(NSDictionary *)arguments
                  withFlutterResult:(FlutterResult)result {
   LAContext *context = [[LAContext alloc] init];
   NSError *authError = nil;
@@ -70,9 +70,10 @@
   lastResult = nil;
   context.localizedFallbackTitle = @"";
 
-  if ([context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
+  LAPolicy policy = ([arguments[@"biometrics"] boolValue]) ? LAPolicyDeviceOwnerAuthenticationWithBiometrics : LAPolicyDeviceOwnerAuthentication;
+  if ([context canEvaluatePolicy:policy
                            error:&authError]) {
-    [context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
+    [context evaluatePolicy:policy
             localizedReason:arguments[@"localizedReason"]
                       reply:^(BOOL success, NSError *error) {
                         if (success) {
@@ -134,7 +135,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   if (lastCallArgs != nil && lastResult != nil) {
-    [self authenticateWithBiometrics:lastCallArgs withFlutterResult:lastResult];
+    [self authenticate:lastCallArgs withFlutterResult:lastResult];
   }
 }
 

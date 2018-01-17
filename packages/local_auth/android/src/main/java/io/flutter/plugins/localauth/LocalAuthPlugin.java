@@ -31,7 +31,7 @@ public class LocalAuthPlugin implements MethodCallHandler {
 
   @Override
   public void onMethodCall(MethodCall call, final Result result) {
-    if (call.method.equals("authenticateWithBiometrics")) {
+    if (call.method.equals("authenticate")) {
       if (!authInProgress.compareAndSet(false, true)) {
         // Apps should not invoke another authentication request while one is in progress,
         // so we classify this as an error condition. If we ever find a legitimate use case for
