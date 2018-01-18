@@ -81,17 +81,15 @@ class LocalAuthentication {
     if (Platform.isIOS) {
       args.addAll(iOSAuthStrings.args);
       args.addAll({"biometrics": onlyBiometrics});
-      print(args);
     } else if (Platform.isAndroid) {
       args.addAll(androidAuthStrings.args);
-    } else {
+    } else if (Platform.environment['FLUTTER_TEST'] != 'true') {
       throw new PlatformException(
           code: otherOperatingSystem,
           message: 'Local authentication does not support non-Android/iOS '
               'operating systems.',
           details: 'Your operating system is ${Platform.operatingSystem}');
     }
-    // change method name in android!!
     return _channel.invokeMethod('authenticate', args);
   }
 }
